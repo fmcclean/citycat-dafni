@@ -35,10 +35,10 @@ spec:
           The rainfall depth value, either directly provided or extracted from FUTURE-DRAINAGE, is used to generate a storm profile in combination with the summer profile and `DURATION` parameter.
         required: false
         options:
-          - name: return_period
-            title: Return Periods
-          #- name: total_depth
-          #  title: Total depth
+          # - name: return_period
+          #   title: Return Periods
+          - name: total_depth
+            title: Total depth
 
       - name: TOTAL_DEPTH
         title: Total depth (mm)

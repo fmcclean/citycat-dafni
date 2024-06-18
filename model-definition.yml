@@ -1,5 +1,5 @@
 kind: M
-api_version: v1beta2
+api_version: v1beta3
 metadata:
   display_name: Urban_Flooding:CityCAT 
   name: citycat-openclim

@@ -65,71 +65,42 @@ logger.info(archive)
 parameter_file = glob(parameters_path + "/*.csv", recursive = True)
 print('parameter_file:', parameter_file)
 
-# If a parameter.csv is available: read the variables from the document
-if len(parameter_file) == 1 :
-    file_path = os.path.splitext(parameter_file[0])
-    print('Filepath:',file_path)
-    filename=file_path[0].split("/")
-    print('Filename:',filename[-1])
+if len(parameter_file) != 0 :
+    all_parameters = pd.concat(map(pd.read_csv,parameter_file),ignore_index=True)
+    print(all_parameters)
+    if 'DURATION' in all_parameters.values:
+        duration_row = all_parameters[all_parameters['PARAMETER']=='DURATION']
+        duration=duration_row['VALUE'].values[0]
+        print('duration:',duration)
+    if 'TOTAL_DEPTH' in all_parameters.values:
+        depth_row = all_parameters[all_parameters['PARAMETER']=='TOTAL_DEPTH']
+        rainfall_total=depth_row['VALUE'].values[0]
+        print('rainfall_total:',rainfall_total)
+else:
+    rainfall_total = os.getenv('TOTAL_DEPTH')
+    duration = os.getenv('DURATION')
 
-    parameters = pd.read_csv(os.path.join(parameters_path + '/' + filename[-1] + '.csv'))
-
-    name = filename[-1]
-    name = name.replace('-parameters','')
-    rainfall_mode = parameters.loc[3][1]
-    rainfall_total = int(parameters.loc[4][1])
-    duration = int(parameters.loc[5][1])
-    open_boundaries = parameters.loc[6][1]
-    if open_boundaries.lower()=='true':
-        open_boundaries=True
-    else :
-        open_boundaries=False
-    permeable_areas = parameters.loc[7][1]
-    roof_storage = float(parameters.loc[8][1])
-    post_event_duration = int(parameters.loc[9][1])
-    output_interval = int(parameters.loc[10][1])
-    size = parameters.loc[11][1]
-    if size != "None":
-        size = float(size)
-    x = parameters.loc[12][1]
-    y = parameters.loc[13][1]
-    if x != "None":
-         x = int(x)
-    if y != "None":
-        y = int(y)
-
-    # discharge_parameter = float(parameters.loc[15][1])
-    #time_horizon = parameters.loc[X][1]
-    #return_period = int(parameters.loc[X][1])
-
-# If no parameter file is available, the user needs to define the parameters
-if len(parameter_file) == 0 :
-    name = os.getenv('NAME')
-    rainfall_mode = os.getenv('RAINFALL_MODE')
-    rainfall_total = int(os.getenv('TOTAL_DEPTH'))
-    duration = int(os.getenv('DURATION'))
-    open_boundaries = (os.getenv('OPEN_BOUNDARIES').lower() == 'true')
-    permeable_areas = os.getenv('PERMEABLE_AREAS')
-    roof_storage = float(os.getenv('ROOF_STORAGE'))
-    post_event_duration = int(os.getenv('POST_EVENT_DURATION'))
-    output_interval = int(os.getenv('OUTPUT_INTERVAL'))
-    size = os.getenv('SIZE') 
-    x = os.getenv('X')
-    y = os.getenv('Y')
-    if size != None:
-        size = float(size)*1000
-    if x != None:
-        x = int(x)
-    if y != None:
-        y = int(y)
-    
-    #time_horizon = os.getenv('TIME_HORIZON')
-    #return_period = int(os.getenv('RETURN_PERIOD'))
-    #discharge_parameter = float(os.getenv('DISCHARGE'))
+# Read all the additional parameter sets:
+rainfall_mode = os.getenv('RAINFALL_MODE')
+open_boundaries = (os.getenv('OPEN_BOUNDARIES').lower() == 'true')
+roof_storage = float(os.getenv('ROOF_STORAGE'))
+post_event_duration = int(os.getenv('POST_EVENT_DURATION'))
+output_interval = int(os.getenv('OUTPUT_INTERVAL'))
+size = os.getenv('SIZE') 
+x = os.getenv('X')
+y = os.getenv('Y')
+if size != None:
+    size = float(size)*1000
+if x != None:
+    x = int(x)
+if y != None:
+    y = int(y)
+time_horizon = os.getenv('TIME_HORIZON')
+return_period = int(os.getenv('RETURN_PERIOD'))
+discharge_parameter = float(os.getenv('DISCHARGE'))
 
 discharge_parameter = float(0)
 nodata = -9999
-
 
 def read_geometries(path, bbox=None):
     logger.info('---- In read geometries function')
@@ -191,18 +162,30 @@ if rainfall_mode == 'return_period':
 logging.info(f'Rainfall Total: {rainfall_total}')
 print(f'Rainfall Total: {rainfall_total}')
 
-unit_profile = np.array([0.017627993, 0.027784045, 0.041248418, 0.064500665, 0.100127555, 0.145482534, 0.20645758,
-                         0.145482534, 0.100127555, 0.064500665, 0.041248418, 0.027784045, 0.017627993])
+# Look to see if a rainfall profile file have been added
+rainfall_file = glob(inputs_path + "/rainfall_data.csv", recursive = True)
+print('rainfall_file:', rainfall_file)
+logging.info(f'Rainfall Total: {rainfall_total}')
+print(f'Rainfall Total: {rainfall_total}')
 
-# Fit storm profile
-logger.info('Fitting rainfall to sotrm profile')
-rainfall_times = np.linspace(start=0, stop=duration*3600, num=len(unit_profile))
+if len(rainfall_file) == 1:
+    # Read rainfall_data
+    rainfall = pd.read_csv(rainfall_file[0],header=None)
+    rainfall = rainfall.reset_index(drop=True)
+    rainfall = rainfall.set_index(rainfall.columns[0])
+else:
+    unit_profile = np.array([0.017627993, 0.027784045, 0.041248418, 0.064500665, 0.100127555, 0.145482534, 0.20645758,
+                             0.145482534, 0.100127555, 0.064500665, 0.041248418, 0.027784045, 0.017627993])
 
-unit_total = sum((unit_profile + np.append(unit_profile[1:], [0])) / 2 *
-                 (np.append(rainfall_times[1:], rainfall_times[[-1]]+1)-rainfall_times))
+    # Fit storm profile
+    logger.info('Fitting rainfall to sotrm profile')
+    rainfall_times = np.linspace(start=0, stop=duration*3600, num=len(unit_profile))
 
-rainfall = pd.DataFrame(list(unit_profile*rainfall_total/unit_total/1000) + [0, 0],
-                        index=list(rainfall_times) + [duration*3600+1, duration*3600+2])
+    unit_total = sum((unit_profile + np.append(unit_profile[1:], [0])) / 2 *
+                     (np.append(rainfall_times[1:], rainfall_times[[-1]]+1)-rainfall_times))
+
+    rainfall = pd.DataFrame(list(unit_profile*rainfall_total/unit_total/1000) + [0, 0],
+                            index=list(rainfall_times) + [duration*3600+1, duration*3600+2])
 
 # Create run directory
 logging.info('Creating run directory')

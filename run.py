@@ -300,6 +300,9 @@ netcdf_path = os.path.join(run_path, 'R1C1_SurfaceMaps.nc')
 
 output.to_geotiff(os.path.join(surface_maps, 'R1_C1_max_depth.csv'), geotiff_path, srid=27700)
 
+print('permeable_areas:',type(permeable_areas))
+print('permeable_areas:',type(str(permeable_areas)))
+            
 output.to_netcdf(surface_maps, out_path=netcdf_path, srid=projection,
                  attributes=dict(
                     rainfall_mode=rainfall_mode,

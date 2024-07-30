@@ -325,12 +325,16 @@ max_velocity.rio.set_crs(dst_crs)
 max_velocity.rio.set_nodata(output.fill_value)
 max_velocity.rio.to_raster(os.path.join(run_path, 'max_velocity.tif'))
 
+print('Stage 1')
+
 vd_product = velocity * a.depth
 max_vd_product = vd_product.max(dim='time').round(3)
 max_vd_product = max_vd_product.where(xr.ufuncs.isfinite(max_vd_product), other=output.fill_value)
 max_vd_product.rio.set_crs(dst_crs)
 max_vd_product.rio.set_nodata(output.fill_value)
 max_vd_product.rio.to_raster(os.path.join(run_path, 'max_vd_product.tif'))
+
+print('Stage 2')
 
 # # Create depth map
 # with rio.open(geotiff_path) as ds:
@@ -353,12 +357,15 @@ max_vd_product.rio.to_raster(os.path.join(run_path, 'max_vd_product.tif'))
 # Create a depth map, with the boundary and max water levels
 
 dpi = 300
+print('dpi:',dpi)
 
 #Plotting the Raster and the ShapeFile together
 fig, ax = plt.subplots(1, 1, dpi = dpi)
 cmap = mpl.cm.Blues
 
 plt.subplots_adjust(left = 0.10 , bottom = 0, right = 0.90 , top =1)
+
+print('Stage 3')
 
 #Bounds for the raster
 bounds_depth =  [0.01, 0.05, 0.10, 0.15, 0.30, 0.50, 0.80, 1.00] #you could change here the water depth of your results
@@ -372,12 +379,16 @@ axins = inset_axes(ax,
                    bbox_transform=ax.transAxes,
                    borderpad=0) 
 
+print('Stage 4')
+
 if len(boundary) != 0:
     boundary.boundary.plot(edgecolor = 'black', lw = 0.5, ax = ax) #lw = 0.05 -> entire area #0.2 #0.80 for zoom
 
 citycat_outputs = rio.open(geotiff_path, mode ='r')
 #The line below correspond to the raster
 show(citycat_outputs, ax = ax, title = 'max_water_depth', cmap = 'Blues', norm = norm)
+
+print('Stage 5')
 
 #Plotting the colorbar for the raster file Water Depth:
 plt.colorbar(mpl.cm.ScalarMappable(cmap = cmap, norm = norm),
@@ -392,7 +403,8 @@ plt.colorbar(mpl.cm.ScalarMappable(cmap = cmap, norm = norm),
 
 plt.savefig(os.path.join(run_path, 'max_depth.png'), dpi=dpi, bbox_inches='tight')
 
-    
+ print('Stage 6')
+
 # Create interpolated GeoTIFF
 with rio.open(geotiff_path) as ds:
     with rio.open(os.path.join(run_path, 'max_depth_interpolated.tif'), 'w', **ds.profile) as dst:
@@ -411,6 +423,8 @@ if rainfall_mode == 'return_period':
 
     title += f' {time_horizon} {return_period}yr'
 
+print('Stage 7')
+
 description += f'Total depth of rainfall was {int(round(rainfall_total, 0))}mm. '
 title += f' {int(round(rainfall_total, 0))}mm'
 if post_event_duration > 0:
@@ -421,6 +435,8 @@ if buildings is not None and len(buildings) > 0:
 
 if green_areas is not None and len(green_areas) > 0:
     description += f'{len(green_areas)} green areas where infiltration can take place were defined. '
+
+print('Stage 8')
 
 description += f'The boundaries of the domain were set to {"open" if open_boundaries else "closed"}.'
 
@@ -435,6 +451,8 @@ if discharge is not None:
 udm_para_out_path = os.path.join(outputs_path, 'udm_parameters')
 if not os.path.exists(udm_para_out_path):
     os.mkdir(udm_para_out_path)
+
+print('Stage 9')
 
 meta_data_txt = glob(udm_para_in_path + "/**/metadata.txt", recursive = True)
 meta_data_csv = glob(udm_para_in_path + "/**/metadata.csv", recursive = True)
@@ -466,6 +484,8 @@ geojson = json.dumps({
     'properties': {},
     'geometry': gpd.GeoSeries(box(*bounds), crs=dst_crs).to_crs(epsg=4326).iloc[0].__geo_interface__})
 print(title)
+
+print('Stage 10')
 
 # Create metadata file
 logger.info('Building metadata file for DAFNI')

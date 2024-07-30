@@ -403,7 +403,7 @@ plt.colorbar(mpl.cm.ScalarMappable(cmap = cmap, norm = norm),
 
 plt.savefig(os.path.join(run_path, 'max_depth.png'), dpi=dpi, bbox_inches='tight')
 
- print('Stage 6')
+print('Stage 6')
 
 # Create interpolated GeoTIFF
 with rio.open(geotiff_path) as ds:

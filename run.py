@@ -298,7 +298,7 @@ logger.info('Creating outputs')
 geotiff_path = os.path.join(run_path, 'max_depth.tif')
 netcdf_path = os.path.join(run_path, 'R1C1_SurfaceMaps.nc')
 
-output.to_geotiff(os.path.join(surface_maps, 'R1_C1_max_depth.csv'), geotiff_path, srid=int(projection)
+output.to_geotiff(os.path.join(surface_maps, 'R1_C1_max_depth.csv'), geotiff_path, srid=int(projection))
             
 output.to_netcdf(surface_maps, out_path=netcdf_path, srid=int(projection),
                  attributes=dict(

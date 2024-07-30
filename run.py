@@ -300,7 +300,7 @@ netcdf_path = os.path.join(run_path, 'R1C1_SurfaceMaps.nc')
 
 output.to_geotiff(os.path.join(surface_maps, 'R1_C1_max_depth.csv'), geotiff_path, srid=27700)
 
-output.to_netcdf(surface_maps, out_path=netcdf_path, srid=27700,
+output.to_netcdf(surface_maps, out_path=netcdf_path, srid=projection,
                  attributes=dict(
                     rainfall_mode=rainfall_mode,
                     rainfall_total=float(rainfall_total),
@@ -315,17 +315,20 @@ output.to_netcdf(surface_maps, out_path=netcdf_path, srid=27700,
 
 a = xr.open_dataset(netcdf_path)
 
+dst_crs='EPSG:'+ projection
+print('dts_crs:',dst_crs)
+
 velocity = xr.ufuncs.sqrt(a.x_vel**2+a.y_vel**2).astype(np.float64)
 max_velocity = velocity.max(dim='time').round(3)
 max_velocity = max_velocity.where(xr.ufuncs.isfinite(max_velocity), other=output.fill_value)
-max_velocity.rio.set_crs('EPSG:27700')
+max_velocity.rio.set_crs(dst_crs)
 max_velocity.rio.set_nodata(output.fill_value)
 max_velocity.rio.to_raster(os.path.join(run_path, 'max_velocity.tif'))
 
 vd_product = velocity * a.depth
 max_vd_product = vd_product.max(dim='time').round(3)
 max_vd_product = max_vd_product.where(xr.ufuncs.isfinite(max_vd_product), other=output.fill_value)
-max_vd_product.rio.set_crs('EPSG:27700')
+max_vd_product.rio.set_crs(dst_crs)
 max_vd_product.rio.set_nodata(output.fill_value)
 max_vd_product.rio.to_raster(os.path.join(run_path, 'max_vd_product.tif'))
 
@@ -461,7 +464,7 @@ if len(constraints)==1:
 geojson = json.dumps({
     'type': 'Feature',
     'properties': {},
-    'geometry': gpd.GeoSeries(box(*bounds), crs='EPSG:27700').to_crs(epsg=4326).iloc[0].__geo_interface__})
+    'geometry': gpd.GeoSeries(box(*bounds), crs=dst_crs).to_crs(epsg=4326).iloc[0].__geo_interface__})
 print(title)
 
 # Create metadata file

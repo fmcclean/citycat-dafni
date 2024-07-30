@@ -82,7 +82,7 @@ if len(parameter_file) != 0 :
         print('permeable_areas:',permeable_areas)
     if 'PROJECTION' in all_parameters.values:
         projection_row = all_parameters[all_parameters['PARAMETER']=='PROJECTION']
-        projection=int(projection_row['VALUE'].values[0])
+        projection=projection_row['VALUE'].values[0]
         print('projection:',projection)       
 else:
     rainfall_total = os.getenv('TOTAL_DEPTH')

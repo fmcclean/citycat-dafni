@@ -70,11 +70,11 @@ if len(parameter_file) != 0 :
     print(all_parameters)
     if 'DURATION' in all_parameters.values:
         duration_row = all_parameters[all_parameters['PARAMETER']=='DURATION']
-        duration=duration_row['VALUE'].values[0]
+        duration=int(duration_row['VALUE'].values[0])
         print('duration:',duration)
     if 'TOTAL_DEPTH' in all_parameters.values:
         depth_row = all_parameters[all_parameters['PARAMETER']=='TOTAL_DEPTH']
-        rainfall_total=depth_row['VALUE'].values[0]
+        rainfall_total=int(depth_row['VALUE'].values[0])
         print('rainfall_total:',rainfall_total)
     if 'PERMEABLE_AREAS' in all_parameters.values:
         permeable_row = all_parameters[all_parameters['PARAMETER']=='PERMEABLE_AREAS']
@@ -82,7 +82,7 @@ if len(parameter_file) != 0 :
         print('permeable_areas:',permeable_areas)
     if 'PROJECTION' in all_parameters.values:
         projection_row = all_parameters[all_parameters['PARAMETER']=='PROJECTION']
-        projection=projection_row['VALUE'].values[0]
+        projection=int(projection_row['VALUE'].values[0])
         print('projection:',projection)       
 else:
     rainfall_total = os.getenv('TOTAL_DEPTH')
@@ -412,8 +412,10 @@ with rio.open(geotiff_path) as ds:
 
 print('Stage 6a')
 
-title = 'CityCat'
-description = 'Testing'
+title = f'{name} {x},{y} {size/1000}km {duration}hr'
+description = f'A {size/1000}x{size/1000}km domain centred at {x},{y} was simulated for ' \
+              f'{duration+post_event_duration}hrs, which took ' \
+              f'{round((end_timestamp-start_timestamp).total_seconds()/3600, 1)}hrs to complete. '
 
 print('Stage 6b')
 

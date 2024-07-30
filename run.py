@@ -77,13 +77,18 @@ if len(parameter_file) != 0 :
         rainfall_total=depth_row['VALUE'].values[0]
         print('rainfall_total:',rainfall_total)
     if 'PERMEABLE_AREAS' in all_parameters.values:
-        depth_row = all_parameters[all_parameters['PARAMETER']=='PERMEABLE_AREAS']
-        permeable_areas=str(depth_row['VALUE'].values[0])
+        permeable_row = all_parameters[all_parameters['PARAMETER']=='PERMEABLE_AREAS']
+        permeable_areas=str(permeable_row['VALUE'].values[0])
         print('permeable_areas:',permeable_areas)
+    if 'PROJECTION' in all_parameters.values:
+        projection_row = all_parameters[all_parameters['PARAMETER']=='PROJECTION']
+        projection=projection_row['VALUE'].values[0]
+        print('projection:',projection)       
 else:
     rainfall_total = os.getenv('TOTAL_DEPTH')
     duration = os.getenv('DURATION')
     permeable_areas = os.getenv('PERMEABLE_AREAS')
+    projection = os.getenv('PROJECTION')
 
 # Read all the additional parameter sets:
 rainfall_mode = os.getenv('RAINFALL_MODE')

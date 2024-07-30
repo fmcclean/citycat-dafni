@@ -412,7 +412,7 @@ with rio.open(geotiff_path) as ds:
 
 print('Stage 6a')
 
-title = 'CityCAT outputs'
+title = 'CityCat'
 description = 'Testing'
 
 print('Stage 6b')

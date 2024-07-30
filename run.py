@@ -413,8 +413,7 @@ with rio.open(geotiff_path) as ds:
 print('Stage 6a')
 
 title = 'CityCAT outputs'
-description = 'This model took' \
-              f'{round((end_timestamp-start_timestamp).total_seconds()/3600, 1)}hrs to complete. '
+description = 'Testing'
 
 print('Stage 6b')
 

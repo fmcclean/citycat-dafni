@@ -412,9 +412,8 @@ with rio.open(geotiff_path) as ds:
 
 print('Stage 6a')
 
-title = f'{name} {x},{y} {size/1000}km {duration}hr'
-description = f'A {size/1000}x{size/1000}km domain centred at {x},{y} was simulated for ' \
-              f'{duration+post_event_duration}hrs, which took ' \
+title = 'CityCAT outputs'
+description = 'This model took' \
               f'{round((end_timestamp-start_timestamp).total_seconds()/3600, 1)}hrs to complete. '
 
 print('Stage 6b')

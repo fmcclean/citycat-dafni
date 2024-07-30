@@ -78,7 +78,7 @@ if len(parameter_file) != 0 :
         print('rainfall_total:',rainfall_total)
     if 'PERMEABLE_AREAS' in all_parameters.values:
         depth_row = all_parameters[all_parameters['PARAMETER']=='PERMEABLE_AREAS']
-        permeable_areas=depth_row['VALUE'].values[0]
+        permeable_areas=str(depth_row['VALUE'].values[0])
         print('permeable_areas:',permeable_areas)
 else:
     rainfall_total = os.getenv('TOTAL_DEPTH')

@@ -300,7 +300,7 @@ netcdf_path = os.path.join(run_path, 'R1C1_SurfaceMaps.nc')
 
 output.to_geotiff(os.path.join(surface_maps, 'R1_C1_max_depth.csv'), geotiff_path, srid=int(projection)
 
-print('rainfall_mode:', type(rainfall_mode))
+#print('rainfall_mode:', type(rainfall_mode))
 print('rainfall_total:', type(float(rainfall_total)))
 print('size:', type(size))
 print('duration:', type(duration))

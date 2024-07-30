@@ -298,7 +298,7 @@ logger.info('Creating outputs')
 geotiff_path = os.path.join(run_path, 'max_depth.tif')
 netcdf_path = os.path.join(run_path, 'R1C1_SurfaceMaps.nc')
 
-output.to_geotiff(os.path.join(surface_maps, 'R1_C1_max_depth.csv'), geotiff_path, srid=27700)
+output.to_geotiff(os.path.join(surface_maps, 'R1_C1_max_depth.csv'), geotiff_path, srid=int(projection)
 
 print('rainfall_mode:', type(rainfall_mode))
 print('rainfall_total:', type(float(rainfall_total)))
@@ -311,7 +311,7 @@ print('open_boundaries:', type(str(open_boundaries)))
 print('permeable_areas:', type(permeable_areas))
 
             
-output.to_netcdf(surface_maps, out_path=netcdf_path, srid=projection,
+output.to_netcdf(surface_maps, out_path=netcdf_path, srid=int(projection),
                  attributes=dict(
                     rainfall_mode=rainfall_mode,
                     rainfall_total=float(rainfall_total),

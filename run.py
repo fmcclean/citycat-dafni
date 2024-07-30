@@ -308,10 +308,10 @@ output.to_netcdf(surface_maps, out_path=netcdf_path, srid=projection,
                     duration=duration,
                     post_event_duration=post_event_duration,
                     #return_period=return_period,
-                    x=x,
-                    y=y,
+                    x=int(x),
+                    y=int(y),
                     open_boundaries=str(open_boundaries),
-                    permeable_areas=permeable_areas))
+                    permeable_areas=str(permeable_areas)))
 
 a = xr.open_dataset(netcdf_path)
 

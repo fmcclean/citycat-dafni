@@ -32,4 +32,4 @@ jobs:
           username: ${{ secrets.DAFNI_SERVICE_ACCOUNT_USERNAME }}
           password: ${{ secrets.DAFNI_SERVICE_ACCOUNT_PASSWORD }}
           version-message: "Uploaded from GitHub workflow"
-          parent-model: "946a9072-bf7b-46e7-84c5-bb00ad5b88aa"
+          parent-model: "0da50c61-f04d-45b9-aa93-40300ea64a5e"

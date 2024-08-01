@@ -110,8 +110,12 @@ if x != None:
 if y != None:
     y = int(y)
 time_horizon = os.getenv('TIME_HORIZON')
-return_period = int(os.getenv('RETURN_PERIOD'))
-discharge_parameter = float(os.getenv('DISCHARGE'))
+return_period = os.getenv('RETURN_PERIOD')
+if return_period != None:
+    return_period = int(return_period)
+discharge_parameter = os.getenv('DISCHARGE')
+if discharge_parameter != None:
+    discharge_parameter = float(discharge_parameter)
 
 discharge_parameter = float(0)
 nodata = -9999

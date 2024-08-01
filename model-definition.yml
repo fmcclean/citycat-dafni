@@ -74,6 +74,15 @@ spec:
           - name: '24'
             title: '24'
 
+      - name: PROJECTION
+        title: Projection  
+        type: number
+        description: 
+          Input the numerical code for the required projection (e.g. 27700). 
+          Use a projection that uses meters not decimal degrees. 
+          If left blank the model will apply the appropriate Universal Transverse Mercator (UTM) Coordinate System.
+        required: False 
+
       - name: OPEN_BOUNDARIES
         title: Open Boundaries
         description:

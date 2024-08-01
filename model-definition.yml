@@ -1,10 +1,10 @@
 kind: M
 api_version: v1beta3
 metadata:
-  display_name: Urban_Flooding:CityCAT 
+  display_name: Global_Urban_Flooding:CityCAT 
   contact_point_name: Olivia Butters
   contact_point_email: olivia.butters@newcastle.ac.uk
-  name: citycat-openclim
+  name: global-citycat-openclim
   publisher: Newcastle University
   summary: CityCAT is a tool for modelling, analysis and visualisation of surface water flooding.
   source_code: https://github.com/OpenCLIM/citycat-dafni

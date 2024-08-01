@@ -21,11 +21,11 @@ metadata:
 spec:
   inputs:
     parameters:
-      - name: NAME
-        title: Run name
-        type: string
-        description: Name for the run, used in the title field of the metadata file.
-        required: false
+      # - name: NAME
+      #   title: Run name
+      #   type: string
+      #   description: Name for the run, used in the title field of the metadata file.
+      #   required: false
 
       - name: RAINFALL_MODE
         title: Rainfall mode
@@ -35,12 +35,13 @@ spec:
           If the `TIME_HORIZON` is anything other than "baseline", the rainfall depth is then uplifted by the percentage given in the CSV file.
           If `RAINFALL_MODE` is set to "total_depth" then the `TOTAL_DEPTH` parameter is used to define the amount of rainfall and the `RETURN_PERIOD` and `TIME_HORIZON` parameters are ignored.
           The rainfall depth value, either directly provided or extracted from FUTURE-DRAINAGE, is used to generate a storm profile in combination with the summer profile and `DURATION` parameter.
-        required: false
+        required: true
+        default: total_depth
         options:
-          # - name: return_period
-          #   title: Return Periods
           - name: total_depth
             title: Total depth
+          - name: return_period
+            title: Return Periods
 
       - name: TOTAL_DEPTH
         title: Total depth (mm)
@@ -79,7 +80,8 @@ spec:
           If `OPEN_BOUNDARIES` is "True", water will be allowed to leave the domain at the edges.
           If it is "False", water will bounce back from the edges of the domain and cannot leave.
         type: boolean
-        required: false
+        default: True
+        required: true
 
       - name: PERMEABLE_AREAS
         title: Permeable areas
@@ -102,7 +104,8 @@ spec:
           Depth of water that can be stored on rooftops (m).
           This value is uniformly applied to all buildings.
         type: number
-        required: false
+        default: 0
+        required: true
         min: 0
         max: 10
 
@@ -113,7 +116,8 @@ spec:
           After the rainfall event ends, CityCAT will continue to run for this period of time.
           This is to allow water to continue propogating and accumulating on the floodplain.
         type: number
-        required: false
+        required: true
+        default: 0
         min: 0
         max: 10
 
@@ -123,7 +127,8 @@ spec:
           Time between depth and velocity outputs (s).
           Decreasing this value will lead to a higher number of output files.
         type: integer
-        required: false
+        default: 600
+        required: true
 
       - name: SIZE
         title: Domain Size (km)
@@ -218,16 +223,6 @@ spec:
         path: inputs/boundary
         required: false
 
-      # - name: Future Drainage
-      #   description:
-      #     Rainfall depths for a range of return periods, durations and time periods are provided by (FUTURE-DRAINAGE)[https://artefacts.ceda.ac.uk/badc_datadocs/future-drainage/FUTURE_DRAINAGE_Guidance_for_applying_rainfall_uplifts.pdf].
-      #     The estimates are based on 2.2 km hourly precipitation data from UKCP18 for RCP 8.5.
-      #     Baseline rainfall depths are provided describing the period 1981-2000 in the ReturnLevel.<year> field.
-      #     Percentage uplifts are available for two future horizons, 2050 and 2070.
-      #     The values are provided for points on a 5km grid covering the UK.
-      #   path: inputs/future-drainage
-      #   required: false
-
       - name: Buildings
         description:
           Buildings can be provided as polygons in GeoPackage or Shapefile format.
@@ -256,14 +251,24 @@ spec:
         path: inputs/parameters
         required: false 
 
-      # - name: Flow Polygons
-      #   description:
-      #     Optionally, discharge can be provided as an input parameter and used as a boundary condition.
-      #     If discharge is provided, then a file containing a polygon that overlaps with domain cell boundaries is required.
-      #     Discharge is routed onto the domain at these overlapping cell boundaries.
-      #     The discharge is distributed uniformly over the specified duration and gets multiplied by the number of cells boundaries intersected.
-      #   path: inputs/flow_polygons
-      #   required: false
+      - name: Flow Polygons
+        description:
+          Optionally, discharge can be provided as an input parameter and used as a boundary condition.
+          If discharge is provided, then a file containing a polygon that overlaps with domain cell boundaries is required.
+          Discharge is routed onto the domain at these overlapping cell boundaries.
+          The discharge is distributed uniformly over the specified duration and gets multiplied by the number of cells boundaries intersected.
+        path: inputs/flow_polygons
+        required: false
+
+      - name: Future Drainage
+        description:
+          Rainfall depths for a range of return periods, durations and time periods are provided by (FUTURE-DRAINAGE)[https://artefacts.ceda.ac.uk/badc_datadocs/future-drainage/FUTURE_DRAINAGE_Guidance_for_applying_rainfall_uplifts.pdf].
+          The estimates are based on 2.2 km hourly precipitation data from UKCP18 for RCP 8.5.
+          Baseline rainfall depths are provided describing the period 1981-2000 in the ReturnLevel.<year> field.
+          Percentage uplifts are available for two future horizons, 2050 and 2070.
+          The values are provided for points on a 5km grid covering the UK.
+        path: inputs/future-drainage
+        required: false
 
   outputs:
     datasets:
@@ -274,12 +279,12 @@ spec:
           The maximum depth is also plotted in a PNG file (Figure 1).
           The depths and velocities from all timesteps are stored in a netCDF file and archived to a ZIP file.
 
-      - name: outputs/run/metadata.json
-        type: JSON
-        description:
-          NID metadata for outputs.
-          This file can be used for creating datasets on DAFNI.
-          All active parameters are included in this file.
+      # - name: outputs/run/metadata.json
+      #   type: JSON
+      #   description:
+      #     NID metadata for outputs.
+      #     This file can be used for creating datasets on DAFNI.
+      #     All active parameters are included in this file.
 
       - name: outputs/parameters/*
         type: folder

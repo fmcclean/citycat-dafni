@@ -42,6 +42,10 @@ parameters_path = os.path.join(inputs_path, 'parameters')
 print('parameters_path:',parameters_path)
 udm_para_in_path = os.path.join(inputs_path, 'udm_parameters')
 
+outputs_parameters_data = os.path.join(data_path, 'outputs', 'parameters')
+if not os.path.exists(outputs_parameters_data):
+    os.mkdir(outputs_parameters_data)
+
 # Set up log file
 logger = logging.getLogger('citycat-dafni')
 logger.setLevel(logging.INFO)
@@ -488,6 +492,27 @@ geojson = json.dumps({
 print(title)
 
 print('Stage 10')
+
+# Print all of the input parameters to an excel sheet to be read in later
+with open(os.path.join(outputs_parameters_data,'citycat-parameters.csv'), 'w') as f:
+    f.write('PARAMETER,VALUE\n')
+    f.write('RAINFALL_MODE,%s\n' %rainfall_mode)
+    f.write('OPEN_BOUNDARIES,%s\n' %open_boundaries)
+    f.write('ROOF_STORAGE,%s\n' %roof_storage)
+    f.write('POST_EVENT_DURATION,%s\n' %post_event_duration)
+    f.write('OUTPUT_INTERVAL,%s\n' %output_interval)
+    if size != None:
+        f.write('SIZE,%s\n' %size)
+    if x != None:
+        f.write('X,%s\n' %x)
+    if y != None:
+        f.write('Y,%s\n' %y)
+    if time_horizon != None:
+        f.write('TIME_HORIZON,%s\n' %time_horizon)
+    if return_period != None:
+        f.write('RETURN_PERIOD,%s\n' %return_period)
+    if discharge_parameter != None:
+        f.write('DISCHARGE,%s\n' %discharge_parameter)
 
 # Create metadata file
 logger.info('Building metadata file for DAFNI')

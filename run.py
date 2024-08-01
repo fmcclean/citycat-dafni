@@ -179,8 +179,6 @@ print(f'Rainfall Total: {rainfall_total}')
 # Look to see if a rainfall profile file have been added
 rainfall_file = glob(inputs_path + "/rainfall_data.csv", recursive = True)
 print('rainfall_file:', rainfall_file)
-logging.info(f'Rainfall Total: {rainfall_total}')
-print(f'Rainfall Total: {rainfall_total}')
 
 if len(rainfall_file) == 1:
     # Read rainfall_data

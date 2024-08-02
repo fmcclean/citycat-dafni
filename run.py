@@ -117,7 +117,7 @@ discharge_parameter = os.getenv('DISCHARGE')
 if discharge_parameter != None:
     discharge_parameter = float(discharge_parameter)
 
-discharge_parameter = float(0)
+#discharge_parameter = float(0)
 nodata = -9999
 
 def read_geometries(path, bbox=None):
@@ -228,17 +228,19 @@ green_areas = read_geometries('green_areas', bbox=bounds)
 total_duration = 3600*duration+3600*post_event_duration
 
 # Create discharge timeseries
+print('discharge_parameter:',discharge_parameter)
 logger.info('Creating discharge timeseries')
-if discharge_parameter > 0:
-    discharge = pd.Series([discharge_parameter, discharge_parameter], index=[0, total_duration])
+if discharge_parameter != None:
+    if discharge_parameter >0:
+        discharge = pd.Series([discharge_parameter, discharge_parameter], index=[0, total_duration])
 
-    # Divide by the length of each cell
-    discharge = discharge.divide(5)
+        # Divide by the length of each cell
+        discharge = discharge.divide(5)
 
-    flow_polygons = gpd.read_file(glob(os.path.join(inputs_path, 'flow_polygons', '*'))[0]).geometry
-else:
-    discharge = None
-    flow_polygons = None
+        flow_polygons = gpd.read_file(glob(os.path.join(inputs_path, 'flow_polygons', '*'))[0]).geometry
+    else:
+        discharge = None
+        flow_polygons = None
 
 logger.info('Creating DEM dataset and boundary dataset')
 dem = MemoryFile()
@@ -515,6 +517,20 @@ with open(os.path.join(outputs_parameters_data,'citycat-parameters.csv'), 'w') a
         f.write('RETURN_PERIOD,%s\n' %return_period)
     if discharge_parameter != None:
         f.write('DISCHARGE,%s\n' %discharge_parameter)
+
+# Move the amended parameter file to the outputs folder
+if len(parameter_file) != 1 :
+    for i in range (0, len(parameter_file)):
+        file_path = os.path.splitext(parameter_file[i])
+        #print('Filepath:',file_path)
+        filename=file_path[0].split("/")
+        #print('Filename:',filename[-1])
+    
+        src = parameter_file[0]
+        #print('src:',src)
+        dst = os.path.join(outputs_parameters_data,filename[-1] + '.csv')
+        #print('dst,dst')
+        shutil.copy(src,dst)
 
 # Create metadata file
 logger.info('Building metadata file for DAFNI')

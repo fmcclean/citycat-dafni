@@ -526,7 +526,7 @@ if len(parameter_file) != 1 :
         filename=file_path[0].split("/")
         #print('Filename:',filename[-1])
     
-        src = parameter_file[0]
+        src = parameter_file[i]
         #print('src:',src)
         dst = os.path.join(outputs_parameters_data,filename[-1] + '.csv')
         #print('dst,dst')

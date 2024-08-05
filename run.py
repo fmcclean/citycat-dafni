@@ -117,7 +117,7 @@ discharge_parameter = os.getenv('DISCHARGE')
 if discharge_parameter != None:
     discharge_parameter = float(discharge_parameter)
 
-if discharge_parameter = None:
+if discharge_parameter == None:
     discharge_parameter = float(0)
 nodata = -9999
 

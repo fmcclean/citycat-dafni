@@ -471,6 +471,42 @@ geojson = json.dumps({
     'geometry': gpd.GeoSeries(box(*bounds), crs='EPSG:27700').to_crs(epsg=4326).iloc[0].__geo_interface__})
 print(title)
 
+# Moving essential files across:
+boundary_input_path = os.path.join(inputs_path,'boundary')
+boundary_file = glob(boundary_input_path + "/*.gpkg", recursive = True)
+print('boundary_file:',boundary_file)
+boundary_output_path = os.path.join(outputs_path,'boundary')
+if not os.path.exists(boundary_output_path):
+    os.mkdir(boundary_output_path)
+
+fi_input_path = os.path.join(inputs_path,'flood_impact')
+fi_file = glob(fi_input_path + "/*.gpkg", recursive = True)
+print('fi_file:',fi_file)
+fi_output_path = os.path.join(outputs_path,'flood_impact')
+if not os.path.exists(fi_output_path):
+    os.mkdir(fi_output_path)
+
+# Move the boundary file to the outputs folder
+if len(boundary_file) != 0 :
+    for i in range (0, len(boundary_file)):
+        file_path = os.path.splitext(boundary_file[i])
+        filename=file_path[0].split("/")
+    
+        src = boundary_file[i]
+        dst = os.path.join(boundary_output_path,filename[-1] + '.gpkg')
+        shutil.copy(src,dst)
+
+# Move the impact files to the outputs folder
+if len(fi_file) != 0 :
+    for i in range (0, len(fi_file)):
+        file_path = os.path.splitext(fi_file[i])
+        filename=file_path[0].split("/")
+    
+        src = fi_file[i]
+        dst = os.path.join(fi_output_path,filename[-1] + '.gpkg')
+        shutil.copy(src,dst)
+
+
 # Create metadata file
 logger.info('Building metadata file for DAFNI')
 metadata = f"""{{

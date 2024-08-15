@@ -1,9 +1,7 @@
 kind: M
 api_version: v1beta3
 metadata:
-  display_name: Urban_Flooding:CityCAT 
-  contact_point_name: Olivia Butters
-  contact_point_email: olivia.butters@newcastle.ac.uk
+  display_name: Urban_Flooding:CityCAT V2
   name: citycat-openclim
   publisher: Newcastle University
   summary: CityCAT is a tool for modelling, analysis and visualisation of surface water flooding.
@@ -18,6 +16,9 @@ metadata:
     The storm profile is generated using the FEH summer profile.
     The effects of buildings, green areas and inflow boundary conditions can be included.
     Results are provided in a range of formats and a metadata JSON file is created which can be used to create DAFNI datasets.
+  contact_point_name: steve birkinshaw
+  contact_point_email: s.j.birkinshaw@ncl.ac.uk
+
 spec:
   inputs:
     parameters:
@@ -37,8 +38,8 @@ spec:
           The rainfall depth value, either directly provided or extracted from FUTURE-DRAINAGE, is used to generate a storm profile in combination with the summer profile and `DURATION` parameter.
         required: false
         options:
-          # - name: return_period
-          #   title: Return Periods
+          #- name: return_period
+          #  title: Return Periods
           - name: total_depth
             title: Total depth
 
@@ -247,7 +248,23 @@ spec:
           Infiltration is allowed at cells within green areas polygons.
           By default, OS MasterMap is used to represent green spaces.
           If `PERMEABLE_AREAS` is set to anything other than "polygons", this data is not used.
+          Spatial green areas can be used if "VALUE" exists in the shape file. Infiltraion.csv parameters 
+          must be supplied for each "VALUE"
         path: inputs/green_areas
+        required: false
+
+      - name: Friction Coeffs
+        description:
+          Friction coeffs can be provided as polygons in GeoPackage or Shapefile format.
+          None default "Values" are used where specfied by the polygon.
+        path: inputs/friction_coeffs
+        required: false
+
+      - name: Rainfall Polygons
+        description:
+          Rainfall coeffs can be provided as polygons in GeoPackage or Shapefile format.
+          rainfall depth for each polygon must be supplied in the addtional rainfall_depth.txt file
+        path: inputs/rainfall_polygons
         required: false
 
       - name: Parameters

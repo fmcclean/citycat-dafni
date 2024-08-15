@@ -3,40 +3,45 @@ import shutil  # must be imported before GDAL
 from rasterio.merge import merge
 import rasterio as rio
 from rasterio.io import MemoryFile
+
+#from citycatio import Model, output
+import citycatio 
 from citycatio import Model, output
+
 import pandas as pd
 import subprocess
 import xarray as xr
 from glob import glob
 import geopandas as gpd
-import rioxarray as rx
+#import rioxarray as rx
 from rasterio.plot import show
-from rasterio.mask import mask
+#from rasterio.mask import mask
 import matplotlib.pyplot as plt
-from matplotlib_scalebar.scalebar import ScaleBar
+#from matplotlib_scalebar.scalebar import ScaleBar
 from rasterio.fill import fillnodata
 from datetime import datetime
 import numpy as np
 from shapely.geometry import box
 import json
-from matplotlib.colors import ListedColormap
-from zipfile import ZipFile
+#from matplotlib.colors import ListedColormap
+#from zipfile import ZipFile
 import matplotlib as mpl
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from matplotlib.colors import ListedColormap
+#from matplotlib.colors import ListedColormap
 
 import random
 import string
 import logging
-from pathlib import Path
-from os.path import isfile, join, isdir
-
 # Set up paths
 data_path = os.getenv('DATA_PATH', '/data')
+#data_path = r'C:\Users\steve\Documents\citycat-dafni-0.20.4/data'
 inputs_path = os.path.join(data_path, 'inputs')
 outputs_path = os.path.join(data_path, 'outputs')
 if not os.path.exists(outputs_path):
     os.mkdir(outputs_path)
+from pathlib import Path
+from os.path import isfile, join, isdir
+
     
 parameters_path = os.path.join(inputs_path, 'parameters')
 print('parameters_path:',parameters_path)
@@ -70,6 +75,7 @@ if len(parameter_file) == 1 :
     file_path = os.path.splitext(parameter_file[0])
     print('Filepath:',file_path)
     filename=file_path[0].split("/")
+    #filename=file_path[0].split("\\")
     print('Filename:',filename[-1])
 
     parameters = pd.read_csv(os.path.join(parameters_path + '/' + filename[-1] + '.csv'))
@@ -222,9 +228,55 @@ assert array[array != nodata].size > 0, "No DEM data available for selected loca
 logger.info('Reading buildings')
 buildings = read_geometries('buildings', bbox=bounds)
 
-# Read green areas
+
+# Look to see if a spatial infiltration/green nareas is being used
+greenAreas_path = os.path.join(inputs_path, 'green_areas')
+infiltration_file = glob(greenAreas_path + "/*.csv", recursive = True)
+print('infiltration_file:', infiltration_file)
+if len(infiltration_file) == 1 :
+    file_path = os.path.splitext(infiltration_file[0])
+    print('Filepath:',file_path)
+    filename=file_path[0].split("/")
+    #filename=file_path[0].split("\\")
+    print('Filename:',filename[-1])
+
+    infiltration_parameters = pd.read_csv(os.path.join(greenAreas_path + '/' + filename[-1] + '.csv'), header=None)
+else:
+    infiltration_parameters = None    
+    
+    
+#read green-areas gemetry
 logger.info('Reading green areas')
 green_areas = read_geometries('green_areas', bbox=bounds)
+if("Value" in green_areas.columns):
+    assert infiltration_file, 'if spatial green areas exist, an infiltration.csv file must be provided'
+
+
+# Read friction coeffs
+logger.info('Reading friction coeffs areas')
+friction = read_geometries('friction_coeffs', bbox=bounds)
+
+# Read spatial rainfall
+logger.info('Reading rainfall polygons')
+rainfall_polygons = read_geometries('rainfall_polygons', bbox=bounds)
+
+logger.info('Reading rainfall depths for rainfall polygons')
+if rainfall_polygons is not None:
+    rainfall_polygons_path = os.path.join(inputs_path, 'rainfall_polygons')
+    rainfall_depth = glob(rainfall_polygons_path + "/*.txt")
+    if len(rainfall_depth) == 1 :
+        spatial_depths = np.loadtxt(rainfall_depth[0],skiprows=1)
+        rain_array = np.zeros(shape=(len(unit_profile)+2,len(spatial_depths)))
+        for x in range(len(unit_profile)):
+            for y in range(len(spatial_depths)):
+                rain_array[x,y]=unit_profile[x]*spatial_depths[y]
+        for y in range(len(spatial_depths)):
+            rain_array[x+1,y]=0.0
+            rain_array[x+2,y]=0.0
+        rainfall = pd.DataFrame(list(rain_array/unit_total/1000),
+                        index=list(rainfall_times) + [duration*3600+1, duration*3600+2] )
+
+
 
 total_duration = 3600*duration+3600*post_event_duration
 
@@ -261,16 +313,19 @@ logger.info('Creating input files')
 Model(
     dem=dem,
     rainfall=rainfall,
+    rainfall_polygons=rainfall_polygons,
     duration=total_duration,
     output_interval=output_interval,
     open_external_boundaries=open_boundaries,
     buildings=buildings,
     green_areas=green_areas,
+    friction=friction,
     use_infiltration=True,
     permeable_areas={'polygons': 0, 'impermeable': 1, 'permeable': 2}[permeable_areas],
     roof_storage=roof_storage,
     flow=discharge,
-    flow_polygons=flow_polygons
+    flow_polygons=flow_polygons,
+    infiltration_parameters=infiltration_parameters
 
 ).write(run_path)
 
@@ -320,19 +375,31 @@ output.to_netcdf(surface_maps, out_path=netcdf_path, srid=27700,
                     open_boundaries=str(open_boundaries),
                     permeable_areas=permeable_areas))
 
+#Xarray’s ufuncs have been removed, now that they can be replaced by numpy’s ufuncs in all supported versions of numpy. 
+#a = xr.open_dataset(netcdf_path)
 a = xr.open_dataset(netcdf_path)
 
-velocity = xr.ufuncs.sqrt(a.x_vel**2+a.y_vel**2).astype(np.float64)
+#print(a)
+
+#velocity = xr.ufuncs.sqrt(a.x_vel**2+a.y_vel**2).astype(np.float64)
+velocity = np.sqrt(a.x_vel**2+a.y_vel**2).astype(np.float64)
+#print(velocity)
 max_velocity = velocity.max(dim='time').round(3)
-max_velocity = max_velocity.where(xr.ufuncs.isfinite(max_velocity), other=output.fill_value)
-max_velocity.rio.set_crs('EPSG:27700')
+#print(max_velocity)
+max_velocity = max_velocity.where(np.isfinite(max_velocity), other=output.fill_value)
+#max_velocity = max_velocity.where(xr.ufuncs.isfinite(max_velocity), other=output.fill_value)
+#print(type(max_velocity.rio))
+#max_velocity.rio.set_crs('EPSG:27700')
+max_velocity.rio.write_crs('EPSG:27700')
 max_velocity.rio.set_nodata(output.fill_value)
 max_velocity.rio.to_raster(os.path.join(run_path, 'max_velocity.tif'))
 
 vd_product = velocity * a.depth
 max_vd_product = vd_product.max(dim='time').round(3)
-max_vd_product = max_vd_product.where(xr.ufuncs.isfinite(max_vd_product), other=output.fill_value)
-max_vd_product.rio.set_crs('EPSG:27700')
+max_vd_product = max_vd_product.where(np.isfinite(max_vd_product), other=output.fill_value)
+#max_vd_product = max_vd_product.where(xr.ufuncs.isfinite(max_vd_product), other=output.fill_value)
+#max_vd_product.rio.set_crs('EPSG:27700')
+max_vd_product.rio.write_crs('EPSG:27700')
 max_vd_product.rio.set_nodata(output.fill_value)
 max_vd_product.rio.to_raster(os.path.join(run_path, 'max_vd_product.tif'))
 
@@ -465,47 +532,12 @@ if len(constraints)==1:
     dst = os.path.join(udm_para_out_path,'constraints.csv')
     shutil.copy(src,dst)
 
-geojson = json.dumps({
-    'type': 'Feature',
-    'properties': {},
-    'geometry': gpd.GeoSeries(box(*bounds), crs='EPSG:27700').to_crs(epsg=4326).iloc[0].__geo_interface__})
+#seems to be code assocaited with UDM model. comment it out for the moment
+#geojson = json.dumps({
+#    'type': 'Feature',
+#    'properties': {},
+#    'geometry': gpd.GeoSeries(box(*bounds), crs='EPSG:27700').to_crs(epsg=4326).iloc[0].__geo_interface__})
 print(title)
-
-# Moving essential files across:
-boundary_input_path = os.path.join(inputs_path,'boundary')
-boundary_file = glob(boundary_input_path + "/*.gpkg", recursive = True)
-print('boundary_file:',boundary_file)
-boundary_output_path = os.path.join(outputs_path,'boundary')
-if not os.path.exists(boundary_output_path):
-    os.mkdir(boundary_output_path)
-
-fi_input_path = os.path.join(inputs_path,'flood_impact')
-fi_file = glob(fi_input_path + "/*.gpkg", recursive = True)
-print('fi_file:',fi_file)
-fi_output_path = os.path.join(outputs_path,'flood_impact')
-if not os.path.exists(fi_output_path):
-    os.mkdir(fi_output_path)
-
-# Move the boundary file to the outputs folder
-if len(boundary_file) != 0 :
-    for i in range (0, len(boundary_file)):
-        file_path = os.path.splitext(boundary_file[i])
-        filename=file_path[0].split("/")
-    
-        src = boundary_file[i]
-        dst = os.path.join(boundary_output_path,filename[-1] + '.gpkg')
-        shutil.copy(src,dst)
-
-# Move the impact files to the outputs folder
-if len(fi_file) != 0 :
-    for i in range (0, len(fi_file)):
-        file_path = os.path.splitext(fi_file[i])
-        filename=file_path[0].split("/")
-    
-        src = fi_file[i]
-        dst = os.path.join(fi_output_path,filename[-1] + '.gpkg')
-        shutil.copy(src,dst)
-
 
 # Create metadata file
 logger.info('Building metadata file for DAFNI')
@@ -541,8 +573,10 @@ metadata = f"""{{
     "@type": "dct:Location",
     "rdfs:label": null
   }},
-  "geojson": {geojson}
 }}
 """
 with open(os.path.join(run_path, 'metadata.json'), 'w') as f:
     f.write(metadata)
+    
+#     "geojson": {geojson}
+

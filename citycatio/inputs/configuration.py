@@ -27,6 +27,8 @@ class Configuration:
         open_external_boundaries: Whether or not to set external boundaries as open
         buildings_algorithm: The algorithm to use when extracting buildings from the domain
         permeable_areas: 0 means use the GreenAreas.txt file, 1 means all impermeable and 2 means all permeable
+        init_surface_water_elv: Is an initial surface water elevation used for dam breaks from reservoirs
+        init_surface_water_elv_spatial: Is the initial surface water elevation spatial (also needed for dam breaks)
     """
     def __init__(
             self,
@@ -47,6 +49,8 @@ class Configuration:
             open_external_boundaries: bool = True,
             buildings_algorithm: int = 1,
             permeable_areas: int = 0,
+            init_surface_water_elv: bool = False,
+            init_surface_water_elv_spatial: bool = False,
             infiltration_parameters: Optional[gpd.GeoDataFrame] = None
     ):
         self.duration = duration
@@ -66,6 +70,8 @@ class Configuration:
         self.open_external_boundaries = open_external_boundaries
         self.buildings_algorithm = buildings_algorithm
         self.permeable_areas = permeable_areas
+        self.init_surface_water_elv = init_surface_water_elv
+        self.init_surface_water_elv_spatial = init_surface_water_elv_spatial
         self.infiltration_parameters = infiltration_parameters
 
     def write(self, path):
@@ -145,8 +151,8 @@ class Configuration:
         permeable_areas.text = str(self.permeable_areas)
 
         initial_conditions = ET.SubElement(config, 'InitSurfaceWaterElevation')
-        initial_conditions.set('set', 'False')
-        initial_conditions.set('spatial', 'False')
+        initial_conditions.set('set', str(self.init_surface_water_elv))
+        initial_conditions.set('spatial', str(self.init_surface_water_elv_spatial))
         initial_conditions.text = '0.00'
 
         max_depth = ET.SubElement(config, 'CreateMaxDepthFile')

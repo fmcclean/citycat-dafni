@@ -17,6 +17,7 @@ class Model:
         buildings: Areas representing buildings which are extracted from the domain
         green_areas: Areas representing permeable land cover
         friction: Areas with custom friction coefficients
+        reservoir: Areas with reservoirs that fail
         open_boundaries: Areas where the domain boundary should be open
         flow: Flow time series
         flow_polygons: Areas corresponding to flow series
@@ -29,6 +30,7 @@ class Model:
         rainfall_polygons (inputs.RainfallPolygons)
         green_areas (inputs.GreenAreas)
         friction (inputs.Friction)
+        reservoir (inputs.Reservoir)
         open_boundaries (inputs.OpenBoundaries)
         flow (inputs.Flow)
         flow_polygons (inputs.Flow)
@@ -41,6 +43,7 @@ class Model:
             buildings: Optional[gpd.GeoDataFrame] = None,
             green_areas: Optional[gpd.GeoDataFrame] = None,
             friction: Optional[gpd.GeoDataFrame] = None,
+            reservoir: Optional[gpd.GeoDataFrame] = None,
             open_boundaries: Optional[gpd.GeoDataFrame] = None,
             flow: Optional[pd.Series] = None,
             flow_polygons: Optional[gpd.GeoSeries] = None,
@@ -55,14 +58,21 @@ class Model:
             assert len(rainfall.columns) == len(rainfall_polygons)
         self.rainfall = inputs.Rainfall(rainfall, spatial=spatial_rainfall)
 
+        init_surface_water_elv = reservoir is not None
+        init_surface_water_elv_spatial = reservoir is not None
+
         self.configuration = inputs.Configuration(
             **{**dict(duration=rainfall.index[-1], rainfall_zones=len(rainfall.columns),
-                      spatial_rainfall=spatial_rainfall,infiltration_parameters=infiltration_parameters), **kwargs})
+                      spatial_rainfall=spatial_rainfall,infiltration_parameters=infiltration_parameters,
+                      init_surface_water_elv=init_surface_water_elv,
+                      init_surface_water_elv_spatial=init_surface_water_elv_spatial), **kwargs})
+        
 
         self.rainfall_polygons = inputs.RainfallPolygons(rainfall_polygons) if rainfall_polygons is not None else None
         self.buildings = inputs.Buildings(buildings) if buildings is not None else None
         self.green_areas = inputs.GreenAreas(green_areas) if green_areas is not None else None
         self.friction = inputs.Friction(friction) if friction is not None else None
+        self.reservoir = inputs.Reservoir(reservoir) if reservoir is not None else None
         self.open_boundaries = inputs.OpenBoundaries(open_boundaries) if open_boundaries is not None else None
         self.flow = inputs.Flow(flow) if flow is not None else None
         self.flow_polygons = inputs.FlowPolygons(flow_polygons) if flow_polygons is not None else None
@@ -89,6 +99,8 @@ class Model:
             self.green_areas.write(path)
         if self.friction is not None:
             self.friction.write(path)
+        if self.reservoir is not None:
+            self.reservoir.write(path)
         if self.open_boundaries is not None:
             self.open_boundaries.write(path)
         if self.flow is not None:

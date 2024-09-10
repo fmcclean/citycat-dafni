@@ -256,6 +256,11 @@ if("Value" in green_areas.columns):
 logger.info('Reading friction coeffs areas')
 friction = read_geometries('friction_coeffs', bbox=bounds)
 
+# Read reservoir
+logger.info('Reading reservoir areas')
+reservoir = read_geometries('reservoir', bbox=bounds)
+
+
 # Read spatial rainfall
 logger.info('Reading rainfall polygons')
 rainfall_polygons = read_geometries('rainfall_polygons', bbox=bounds)
@@ -320,6 +325,7 @@ Model(
     buildings=buildings,
     green_areas=green_areas,
     friction=friction,
+    reservoir=reservoir,
     use_infiltration=True,
     permeable_areas={'polygons': 0, 'impermeable': 1, 'permeable': 2}[permeable_areas],
     roof_storage=roof_storage,

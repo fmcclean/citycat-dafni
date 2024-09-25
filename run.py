@@ -221,7 +221,9 @@ array, transform = merge(dem_datasets, bounds=bounds, precision=50, nodata=nodat
 assert array[array != nodata].size > 0, "No DEM data available for selected location"
 
 buildings_path_shp = glob(os.path.join(buildings_path, '*.shp'))
+print('buildings_path_shp:',buildings_path_shp)
 buildings_path_gpkg = glob(os.path.join(buildings_path,'*.gpkg'))
+print('buildings_path_gpkg:',buildings_path_gpkg)
 # Read the buildings
 if len(buildings_path_gpkg) !=0:
     e_builds = gpd.read_file(buildings_path_gpkg[0])
@@ -241,7 +243,9 @@ if len(buildings_path_gpkg) !=0:
         os.remove(os.path.join(inputs_path,'all_buildings.shx'))
 
 green_areas_path_shp = glob(os.path.join(green_areas_path, '*.shp'))
+print('green_areas_path_shp:',green_areas_path_shp)
 green_areas_path_gpkg = glob(os.path.join(green_areas_path,'*.gpkg'))
+print('green_areas_path_shp:',green_areas_path_shp)
 # Read the green_areas
 if len(green_areas_path_gpkg) !=0:
     e_green = gpd.read_file(green_areas_path_gpkg[0])

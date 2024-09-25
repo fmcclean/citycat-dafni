@@ -240,7 +240,6 @@ if len(buildings_path_gpkg) !=0:
         os.remove(os.path.join(inputs_path,'all_buildings.dbf'))
         os.remove(os.path.join(inputs_path,'all_buildings.prj'))
         os.remove(os.path.join(inputs_path,'all_buildings.shx'))
-        os.remove(os.path.join(inputs_path,'all_buildings.shx'))
 
 green_areas_path_shp = glob(os.path.join(green_areas_path, '*.shp'))
 print('green_areas_path_shp:',green_areas_path_shp)
@@ -261,7 +260,6 @@ if len(green_areas_path_gpkg) !=0:
         os.remove(os.path.join(inputs_path,'all_green_areas.cpg'))
         os.remove(os.path.join(inputs_path,'all_green_areas.dbf'))
         os.remove(os.path.join(inputs_path,'all_green_areas.prj'))
-        os.remove(os.path.join(inputs_path,'all_green_areas.shx'))
         os.remove(os.path.join(inputs_path,'all_green_areas.shx'))
 
 

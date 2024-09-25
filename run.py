@@ -34,6 +34,8 @@ from os.path import isfile, join, isdir
 # Set up paths
 data_path = os.getenv('DATA_PATH', '/data')
 inputs_path = os.path.join(data_path, 'inputs')
+buildings_path = os.path.join(inputs_path,'buildings')
+green_areas_path = os.path.join(inputs_path,'green_areas')
 outputs_path = os.path.join(data_path, 'outputs')
 if not os.path.exists(outputs_path):
     os.mkdir(outputs_path)
@@ -217,6 +219,47 @@ dem_datasets = [rio.open(os.path.join(dem_path, os.path.abspath(p))) for p in gl
 
 array, transform = merge(dem_datasets, bounds=bounds, precision=50, nodata=nodata)
 assert array[array != nodata].size > 0, "No DEM data available for selected location"
+
+buildings_path_shp = glob(os.path.join(buildings_path, '*.shp'))
+buildings_path_gpkg = glob(os.path.join(buildings_path,'*.gpkg'))
+# Read the buildings
+if len(buildings_path_gpkg) !=0:
+    e_builds = gpd.read_file(buildings_path_gpkg[0])
+    if len(buildings_path_shp) == 0:
+        all_builds = e_builds.to_file(os.path.join(inputs_path,'all_buildings.shp'))
+        all_builds = gpd.read_file(os.path.join(inputs_path,'all_buildings.shp'))
+        all_builds = all_builds.explode()
+        all_builds.reset_index(inplace=True, drop=True)
+        all_builds1 = all_builds.to_file(os.path.join(buildings_path,'all_buildings.shp'))
+
+        os.remove(buildings_path_gpkg[0])
+        os.remove(os.path.join(inputs_path,'all_buildings.shp'))
+        os.remove(os.path.join(inputs_path,'all_buildings.cpg'))
+        os.remove(os.path.join(inputs_path,'all_buildings.dbf'))
+        os.remove(os.path.join(inputs_path,'all_buildings.prj'))
+        os.remove(os.path.join(inputs_path,'all_buildings.shx'))
+        os.remove(os.path.join(inputs_path,'all_buildings.shx'))
+
+green_areas_path_shp = glob(os.path.join(green_areas_path, '*.shp'))
+green_areas_path_gpkg = glob(os.path.join(green_areas_path,'*.gpkg'))
+# Read the green_areas
+if len(green_areas_path_gpkg) !=0:
+    e_green = gpd.read_file(green_areas_path_gpkg[0])
+    if len(green_areas_path_shp) == 0 :
+        all_green_areas = e_builds.to_file(os.path.join(inputs_path,'all_green_areas.shp'))
+        all_green_areas = gpd.read_file(os.path.join(inputs_path,'all_green_areas.shp'))
+        all_green_areas = all_green_areas.explode()
+        all_green_areas.reset_index(inplace=True, drop=True)
+        all_green_areas = all_green_areas.to_file(os.path.join(green_areas_path,'all_green_areas.shp'))
+
+        os.remove(green_areas_path_gpkg[0])
+        os.remove(os.path.join(inputs_path,'all_green_areas.shp'))
+        os.remove(os.path.join(inputs_path,'all_green_areas.cpg'))
+        os.remove(os.path.join(inputs_path,'all_green_areas.dbf'))
+        os.remove(os.path.join(inputs_path,'all_green_areas.prj'))
+        os.remove(os.path.join(inputs_path,'all_green_areas.shx'))
+        os.remove(os.path.join(inputs_path,'all_green_areas.shx'))
+
 
 # Read buildings
 logger.info('Reading buildings')

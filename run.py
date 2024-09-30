@@ -34,12 +34,10 @@ from os.path import isfile, join, isdir
 # Set up paths
 data_path = os.getenv('DATA_PATH', '/data')
 inputs_path = os.path.join(data_path, 'inputs')
-buildings_path = os.path.join(inputs_path,'buildings')
-green_areas_path = os.path.join(inputs_path,'green_areas')
 outputs_path = os.path.join(data_path, 'outputs')
 if not os.path.exists(outputs_path):
     os.mkdir(outputs_path)
-    
+
 parameters_path = os.path.join(inputs_path, 'parameters')
 print('parameters_path:',parameters_path)
 udm_para_in_path = os.path.join(inputs_path, 'udm_parameters')
@@ -61,7 +59,7 @@ logger.info('Log file established!')
 logger.info('--------')
 
 logger.info('Paths have been setup')    
-    
+
 # If the UDM model preceeds the CityCat model in the workflow, a zip file should appear in the inputs folder
 # Check if the zip file exists
 archive = glob(inputs_path + "/**/*.zip", recursive = True)
@@ -129,21 +127,21 @@ def read_geometries(path, bbox=None):
     paths.extend(glob(os.path.join(inputs_path, path, '*.shp')))
     print(f'Files in {path} directory: {[os.path.basename(p) for p in paths]}')
     logger.info(f'---- Files in {path} directory to read in: {[os.path.basename(p) for p in paths]}')
-    
+
     # set a default value
     geometries = None
-    
+
     if len(paths) > 0:
         logger.info('-------- Reading in %s' %path)
         geometries = gpd.read_file(paths[0], bbox=bbox)
         logger.info('-------- Number of features read now: %s' %geometries.shape[0])
-              
+
     if len(paths) > 1:
         for path in paths[1:]:
             logger.info('-------- Reading in %s' %path)
             geometries = geometries.append(gpd.read_file(path, bbox=bounds))
             logger.info('-------- Number of features read now: %s' %geometries.shape[0])
-            
+
     logger.info('---- Completed read geometries funtion')
     return geometries
 
@@ -219,49 +217,6 @@ dem_datasets = [rio.open(os.path.join(dem_path, os.path.abspath(p))) for p in gl
 
 array, transform = merge(dem_datasets, bounds=bounds, precision=50, nodata=nodata)
 assert array[array != nodata].size > 0, "No DEM data available for selected location"
-
-# buildings_path_shp = glob(os.path.join(buildings_path, '*.shp'))
-# print('buildings_path_shp:',buildings_path_shp)
-# buildings_path_gpkg = glob(os.path.join(buildings_path,'*.gpkg'))
-# print('buildings_path_gpkg:',buildings_path_gpkg)
-# # Read the buildings
-# if len(buildings_path_gpkg) !=0:
-#     e_builds = gpd.read_file(buildings_path_gpkg[0])
-#     if len(buildings_path_shp) == 0:
-#         all_builds = e_builds.to_file(os.path.join(inputs_path,'all_buildings.shp'))
-#         all_builds = gpd.read_file(os.path.join(inputs_path,'all_buildings.shp'))
-#         all_builds = all_builds.explode()
-#         all_builds.reset_index(inplace=True, drop=True)
-#         all_builds1 = all_builds.to_file(os.path.join(buildings_path,'all_buildings.shp'))
-
-#         os.remove(buildings_path_gpkg[0])
-#         os.remove(os.path.join(inputs_path,'all_buildings.shp'))
-#         os.remove(os.path.join(inputs_path,'all_buildings.cpg'))
-#         os.remove(os.path.join(inputs_path,'all_buildings.dbf'))
-#         os.remove(os.path.join(inputs_path,'all_buildings.prj'))
-#         os.remove(os.path.join(inputs_path,'all_buildings.shx'))
-
-# green_areas_path_shp = glob(os.path.join(green_areas_path, '*.shp'))
-# print('green_areas_path_shp:',green_areas_path_shp)
-# green_areas_path_gpkg = glob(os.path.join(green_areas_path,'*.gpkg'))
-# print('green_areas_path_shp:',green_areas_path_shp)
-# # Read the green_areas
-# if len(green_areas_path_gpkg) !=0:
-#     e_green = gpd.read_file(green_areas_path_gpkg[0])
-#     if len(green_areas_path_shp) == 0 :
-#         all_green_areas = e_builds.to_file(os.path.join(inputs_path,'all_green_areas.shp'))
-#         all_green_areas = gpd.read_file(os.path.join(inputs_path,'all_green_areas.shp'))
-#         all_green_areas = all_green_areas.explode()
-#         all_green_areas.reset_index(inplace=True, drop=True)
-#         all_green_areas = all_green_areas.to_file(os.path.join(green_areas_path,'all_green_areas.shp'))
-
-#         os.remove(green_areas_path_gpkg[0])
-#         os.remove(os.path.join(inputs_path,'all_green_areas.shp'))
-#         os.remove(os.path.join(inputs_path,'all_green_areas.cpg'))
-#         os.remove(os.path.join(inputs_path,'all_green_areas.dbf'))
-#         os.remove(os.path.join(inputs_path,'all_green_areas.prj'))
-#         os.remove(os.path.join(inputs_path,'all_green_areas.shx'))
-
 
 # Read buildings
 logger.info('Reading buildings')
@@ -353,7 +308,7 @@ geotiff_path = os.path.join(run_path, 'max_depth.tif')
 netcdf_path = os.path.join(run_path, 'R1C1_SurfaceMaps.nc')
 
 output.to_geotiff(os.path.join(surface_maps, 'R1_C1_max_depth.csv'), geotiff_path, srid=int(projection))
-            
+
 if x != None:
     output.to_netcdf(surface_maps, out_path=netcdf_path, srid=int(projection),
                      attributes=dict(
@@ -580,7 +535,7 @@ if len(parameter_file) != 1 :
         #print('Filepath:',file_path)
         filename=file_path[0].split("/")
         #print('Filename:',filename[-1])
-    
+
         src = parameter_file[i]
         #print('src:',src)
         dst = os.path.join(outputs_parameters_data,filename[-1] + '.csv')
@@ -594,14 +549,12 @@ print('boundary_file:',boundary_file)
 boundary_output_path = os.path.join(outputs_path,'boundary')
 if not os.path.exists(boundary_output_path):
     os.mkdir(boundary_output_path)
-
 fi_input_path = os.path.join(inputs_path,'flood_impact')
 fi_file = glob(fi_input_path + "/*.gpkg", recursive = True)
 print('fi_file:',fi_file)
 fi_output_path = os.path.join(outputs_path,'flood_impact')
 if not os.path.exists(fi_output_path):
     os.mkdir(fi_output_path)
-
 # Move the boundary file to the outputs folder
 if len(boundary_file) != 0 :
     for i in range (0, len(boundary_file)):
@@ -611,7 +564,6 @@ if len(boundary_file) != 0 :
         src = boundary_file[i]
         dst = os.path.join(boundary_output_path,filename[-1] + '.gpkg')
         shutil.copy(src,dst)
-
 # Move the impact files to the outputs folder
 if len(fi_file) != 0 :
     for i in range (0, len(fi_file)):
@@ -621,7 +573,6 @@ if len(fi_file) != 0 :
         src = fi_file[i]
         dst = os.path.join(fi_output_path,filename[-1] + '.gpkg')
         shutil.copy(src,dst)
-
 # Create metadata file
 logger.info('Building metadata file for DAFNI')
 metadata = f"""{{

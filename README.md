@@ -20,9 +20,14 @@ python build_docs.py
 [environment.yml](https://github.com/OpenCLIM/citycat-dafni/blob/master/environment.yml)
 
 ## Usage 
+```
 docker build -t citycat_dafni .
 docker run -e DURATION=1 -e TOTAL_DEPTH=40 -e OPEN_BOUNDARIES=True -e ROOF_STORAGE=0 -e POST_EVENT_DURATION=0 -e OUTPUT_INTERVAL=3600 -e RAINFALL_MODE=total_depth -e SIZE=0.1 -e X=258722 -e Y=665028 --name citycat_dafni citycat_dafni
+```
 
 or
+
+```
 setenv.bat
 python run.py
+```

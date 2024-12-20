@@ -20,8 +20,9 @@ python build_docs.py
 [environment.yml](https://github.com/OpenCLIM/citycat-dafni/blob/master/environment.yml)
 
 ## Usage 
-`docker build -t citycat-dafni . && docker run -v $PWD/data:/data --env PYTHONUNBUFFERED=1 --env RAINFALL_MODE=return_period --env SIZE=0.1 --env DURATION=1 --env POST_EVENT_DURATION=0 --env TOTAL_DEPTH=40 --env RETURN_PERIOD=100 --env X=258722 --env Y=665028 --env OPEN_BOUNDARIES=True --env PERMEABLE_AREAS=polygons --env ROOF_STORAGE=0 --env TIME_HORIZON=2050 --name citycat-dafni-return-period citycat-dafni`
+`docker build -t citycat_dafni .'
+`docker run -e DURATION=1 -e TOTAL_DEPTH=40 -e OPEN_BOUNDARIES=True -e ROOF_STORAGE=0 -e POST_EVENT_DURATION=0 -e OUTPUT_INTERVAL=3600 -e RAINFALL_MODE=total_depth -e SIZE=0.1 -e X=258722 -e Y=665028 --name citycat_dafni citycat_dafni'
 
 or
-
+`setenv.bat`
 `python run.py`

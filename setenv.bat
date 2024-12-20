@@ -1,0 +1,16 @@
+set PYTHONUNBUFFERED=1
+set RAINFALL_MODE=total_depth
+set SIZE=0.1
+set DURATION=1
+set POST_EVENT_DURATION=0
+set TOTAL_DEPTH=40
+set RETURN_PERIOD=100
+set X=258722
+set Y=665028
+set OPEN_BOUNDARIES=True
+set PERMEABLE_AREAS=polygons
+set ROOF_STORAGE=0
+set TIME_HORIZON=2050
+set DATA_PATH=C:\Users\steve\Documents\CityCAT-dafni\CityCAT-dafni-v3\data
+set NAME=test
+set OUTPUT_INTERVAL=3600

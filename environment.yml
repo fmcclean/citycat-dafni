@@ -6,6 +6,6 @@ dependencies:
   - scipy=1.13.0
   - pip
   - pip:
-      - netcdf4==1.6.5
+      - netcdf4==1.7.2
       - rioxarray==0.15.0
       - matplotlib-scalebar==0.7.2
